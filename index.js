@@ -12,14 +12,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.all('*', async (req, res) => {
-  if (req.path === '/') return res.send('Discord Bot Panel Proxy is running.');
+app.get('/', (req, res) => res.send('Discord Bot Panel Proxy is running. OK'));
 
+app.all('*', async (req, res) => {
   const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
   const url = 'https://discord.com/api/v10' + req.path + qs;
-
   console.log(req.method, url);
-
   try {
     const r = await fetch(url, {
       method: req.method,
@@ -33,10 +31,9 @@ app.all('*', async (req, res) => {
     const data = await r.json();
     res.status(r.status).json(data);
   } catch (e) {
-    console.error(e);
     res.status(500).json({ message: e.message });
   }
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log('Proxy running on port ' + PORT));
+app.listen(PORT, () => console.log('Proxy on port ' + PORT));
